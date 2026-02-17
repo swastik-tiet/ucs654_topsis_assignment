@@ -67,46 +67,12 @@ TOPSIS is a **Multi-Criteria Decision Making (MCDM)** method developed by Hwang 
 
 ---
 
-## 📁 Repository Structure
-
-```
-📦 Topsis-Assignment/
-│
-├── 📂 Part-I/                          ← Command Line Tool
-│   ├── topsis.py                       ← Main CLI program
-│   ├── data.csv                        ← Sample input file
-│   └── output-result.csv              ← Sample output file
-│
-├── 📂 Part-II/                         ← PyPI Package
-│   ├── 📂 Topsis-FirstName-RollNumber/
-│   │   ├── 📂 topsis_pkg/
-│   │   │   ├── __init__.py
-│   │   │   ├── topsis.py              ← Core algorithm
-│   │   │   └── cli.py                 ← Entry point
-│   │   ├── setup.py
-│   │   ├── setup.cfg
-│   │   ├── pyproject.toml
-│   │   ├── MANIFEST.in
-│   │   ├── LICENSE
-│   │   └── README.md                  ← Package user manual
-│   └── USER_MANUAL.md
-│
-├── 📂 Part-III/                        ← Web Service
-│   ├── 📂 topsis_web/
-│   │   ├── app.py                     ← Flask backend
-│   │   ├── 📂 templates/
-│   │   │   └── index.html             ← Frontend UI
-│   │   ├── 📂 uploads/
-│   │   ├── 📂 results/
-│   │   └── requirements.txt
-│   └── sample_data.csv
-│
-├── README.md                           ← This file
-├── .gitignore
-└── LICENSE
-```
-
----
+Topsis-Assignment/
+├── Part-I/           → topsis.py, data.csv, output-result.csv
+├── Part-II/          → Topsis-FirstName-RollNumber/
+│   └── topsis_pkg/   → __init__.py, topsis.py, cli.py
+│   └── setup.py, pyproject.toml
+└── Part-III/         → app.py, templates/index.html, requirements.txt
 
 ## ⚡ Part I — Command Line Tool
 
