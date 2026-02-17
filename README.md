@@ -171,7 +171,7 @@ cat result.csv
 
 <div align="center">
 
-[![PyPI](https://img.shields.io/badge/PyPI-Topsis--FirstName--RollNumber-006DAD?style=for-the-badge&logo=pypi&logoColor=white)](https://pypi.org/project/Topsis-swastik-102316020/)
+[![PyPI](https://img.shields.io/badge/PyPI-Topsis--swastik--102316020-006DAD?style=for-the-badge&logo=pypi&logoColor=white)](https://pypi.org/project/Topsis-swastik-102316020/)
 
 </div>
 
