@@ -1,408 +1,1125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TOPSIS Analysis Tool</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TOPSIS Analyzer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── Design Tokens ─────────────────────────────────── */
+    :root {
+      --ink:       #0f0e0d;
+      --paper:     #f5f1eb;
+      --cream:     #ede8e0;
+      --gold:      #c9a84c;
+      --gold-lt:   #e8d49a;
+      --rust:      #b84c22;
+      --sage:      #4a7c59;
+      --muted:     #7a7065;
+      --border:    #d4cec5;
+      --white:     #ffffff;
+      --shadow:    0 4px 24px rgba(15,14,13,0.10);
+      --shadow-lg: 0 12px 48px rgba(15,14,13,0.18);
+      --radius:    3px;
+    }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+    /* ─── Reset & Base ──────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 600px;
-            width: 100%;
-            padding: 40px;
-        }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 2em;
-        }
+    /* ─── Grid Background ───────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 48px 48px;
+      opacity: 0.35;
+      pointer-events: none;
+      z-index: 0;
+    }
 
-        .tagline {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 0.95em;
-        }
+    /* ─── Header ────────────────────────────────────────── */
+    header {
+      position: relative;
+      z-index: 10;
+      border-bottom: 2px solid var(--ink);
+      background: var(--ink);
+      padding: 0 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
 
-        label {
-            display: block;
-            color: #333;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 0.95em;
-        }
+    .logo-mark {
+      width: 38px;
+      height: 38px;
+      background: var(--gold);
+      display: grid;
+      place-items: center;
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+      color: var(--ink);
+      font-weight: bold;
+      flex-shrink: 0;
+    }
 
-        input[type="text"],
-        input[type="email"],
-        input[type="number"],
-        input[type="password"],
-        input[type="file"],
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e1e8ed;
-            border-radius: 6px;
-            font-size: 0.95em;
-            font-family: inherit;
-            transition: border-color 0.3s;
-        }
+    .logo-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: var(--paper);
+      letter-spacing: -0.02em;
+    }
 
-        input[type="text"]:focus,
-        input[type="email"]:focus,
-        input[type="number"]:focus,
-        input[type="password"]:focus,
-        input[type="file"]:focus,
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
+    .logo-text span {
+      color: var(--gold);
+    }
 
-        .help-text {
-            font-size: 0.85em;
-            color: #999;
-            margin-top: 5px;
-        }
+    .header-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border: 1px solid #3a3632;
+      padding: 4px 10px;
+    }
 
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 30px;
-        }
+    /* ─── Hero Band ─────────────────────────────────────── */
+    .hero {
+      position: relative;
+      z-index: 5;
+      background: linear-gradient(135deg, var(--ink) 0%, #2a2620 100%);
+      padding: 4rem 3rem 3.5rem;
+      overflow: hidden;
+    }
 
-        button {
-            flex: 1;
-            padding: 12px;
-            font-size: 1em;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
+    .hero::after {
+      content: 'TOPSIS';
+      position: absolute;
+      right: -1rem;
+      top: -1.5rem;
+      font-family: 'DM Serif Display', serif;
+      font-size: 160px;
+      color: rgba(255,255,255,0.03);
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+    }
 
-        .btn-submit {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
+    .hero-inner {
+      max-width: 900px;
+      margin: 0 auto;
+    }
 
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
+    .hero-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--gold);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-        .btn-submit:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
+    .hero-eyebrow::before {
+      content: '';
+      width: 32px;
+      height: 1px;
+      background: var(--gold);
+    }
 
-        .btn-reset {
-            background: #f0f0f0;
-            color: #333;
-        }
+    .hero h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(32px, 5vw, 54px);
+      color: var(--paper);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.2rem;
+    }
 
-        .btn-reset:hover {
-            background: #e0e0e0;
-        }
+    .hero h1 em {
+      font-style: italic;
+      color: var(--gold-lt);
+    }
 
-        .alert {
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            display: none;
-        }
+    .hero p {
+      font-size: 16px;
+      color: #a09890;
+      max-width: 560px;
+      line-height: 1.65;
+    }
 
-        .alert-error {
-            background: #fee;
-            color: #c33;
-            border-left: 4px solid #c33;
-        }
+    /* ─── Steps Bar ─────────────────────────────────────── */
+    .steps-bar {
+      position: relative;
+      z-index: 5;
+      background: var(--gold);
+      padding: 0 3rem;
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+    }
 
-        .alert-success {
-            background: #efe;
-            color: #3c3;
-            border-left: 4px solid #3c3;
-        }
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 24px 14px 0;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--ink);
+      white-space: nowrap;
+    }
 
-        .alert ul {
-            margin-left: 20px;
-            margin-top: 5px;
-        }
+    .step:not(:last-child)::after {
+      content: '→';
+      margin-left: 20px;
+      opacity: 0.5;
+    }
 
-        .alert li {
-            margin-bottom: 3px;
-        }
+    .step-num {
+      width: 22px;
+      height: 22px;
+      background: var(--ink);
+      color: var(--gold);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
 
-        .loading {
-            display: none;
-            text-align: center;
-            color: #667eea;
-            font-weight: 600;
-        }
+    /* ─── Main Layout ───────────────────────────────────── */
+    main {
+      position: relative;
+      z-index: 5;
+      max-width: 960px;
+      margin: 3rem auto;
+      padding: 0 2rem 4rem;
+    }
 
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 10px auto;
-        }
+    /* ─── Card ──────────────────────────────────────────── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 2.5rem;
+      margin-bottom: 2rem;
+    }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+    .card-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-        .results {
-            display: none;
-            margin-top: 30px;
-            border-top: 2px solid #f0f0f0;
-            padding-top: 20px;
-        }
+    .card-title .icon {
+      width: 32px;
+      height: 32px;
+      background: var(--cream);
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
 
-        .results h2 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
+    .card-subtitle {
+      font-size: 13.5px;
+      color: var(--muted);
+      margin-bottom: 2rem;
+      padding-left: 44px;
+      line-height: 1.5;
+    }
 
-        .results-table {
-            width: 100%;
-            border-collapse: collapse;
-            max-height: 400px;
-            overflow-y: auto;
-            display: block;
-            font-size: 0.9em;
-        }
+    /* ─── Form Fields ───────────────────────────────────── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
 
-        .results-table thead {
-            display: block;
-            background: #f8f8f8;
-        }
+    .form-grid.full {
+      grid-template-columns: 1fr;
+    }
 
-        .results-table tbody {
-            display: block;
-            overflow-y: auto;
-            max-height: 300px;
-        }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
 
-        .results-table th,
-        .results-table td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #e1e8ed;
-        }
+    .field.span-2 {
+      grid-column: span 2;
+    }
 
-        .results-table td {
-            color: #666;
-        }
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-        .results-table th {
-            background: #f8f8f8;
-            font-weight: 600;
-            color: #333;
-        }
+    label .req {
+      color: var(--rust);
+      font-size: 14px;
+    }
 
-        .download-btn {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 10px 20px;
-            background: #667eea;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      margin-top: -2px;
+    }
 
-        .download-btn:hover {
-            background: #764ba2;
-            transform: translateY(-2px);
-        }
+    input[type="text"],
+    input[type="email"] {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      background: var(--paper);
+      font-family: 'DM Mono', monospace;
+      font-size: 13.5px;
+      color: var(--ink);
+      outline: none;
+      border-radius: var(--radius);
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
 
-        .section-title {
-            color: #667eea;
-            font-size: 1.1em;
-            font-weight: 600;
-            margin-top: 25px;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #f0f0f0;
-        }
+    input[type="text"]:focus,
+    input[type="email"]:focus {
+      border-color: var(--gold);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15);
+    }
 
-        .first {
-            margin-top: 0;
-        }
-    </style>
+    input.error {
+      border-color: var(--rust);
+      background: #fff5f3;
+    }
+
+    /* ─── File Upload ───────────────────────────────────── */
+    .file-drop {
+      border: 2px dashed var(--border);
+      background: var(--cream);
+      padding: 2.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s;
+      position: relative;
+      border-radius: var(--radius);
+    }
+
+    .file-drop:hover,
+    .file-drop.dragover {
+      border-color: var(--gold);
+      background: #f8f3e8;
+    }
+
+    .file-drop.has-file {
+      border-color: var(--sage);
+      background: #f0f5f1;
+    }
+
+    .file-drop input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .file-icon {
+      font-size: 36px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .file-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .file-sub {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    #file-name {
+      margin-top: 12px;
+      font-size: 13px;
+      font-family: 'DM Mono', monospace;
+      color: var(--sage);
+      font-weight: 500;
+      display: none;
+    }
+
+    /* ─── SMTP Section ──────────────────────────────────── */
+    .smtp-toggle {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: var(--cream);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+      border-radius: var(--radius);
+      transition: background 0.2s;
+    }
+
+    .smtp-toggle:hover { background: #ece6db; }
+
+    .toggle-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--ink);
+      color: var(--gold);
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .toggle-text {
+      flex: 1;
+    }
+
+    .toggle-text strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .toggle-text span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .toggle-arrow {
+      color: var(--muted);
+      transition: transform 0.3s;
+      font-size: 18px;
+    }
+
+    .toggle-arrow.open { transform: rotate(90deg); }
+
+    .smtp-fields {
+      display: none;
+      margin-top: 1rem;
+    }
+
+    .smtp-fields.open {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      animation: slideDown 0.25s ease;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .smtp-note {
+      grid-column: span 2;
+      font-size: 12px;
+      color: var(--muted);
+      background: #fff9ee;
+      border: 1px solid var(--gold-lt);
+      padding: 10px 14px;
+      line-height: 1.6;
+      border-radius: var(--radius);
+    }
+
+    .smtp-note a {
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    /* ─── Submit Button ─────────────────────────────────── */
+    .submit-row {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .btn-submit {
+      background: var(--ink);
+      color: var(--paper);
+      border: none;
+      padding: 16px 40px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      border-radius: var(--radius);
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-submit::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--gold);
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+    }
+
+    .btn-submit:hover::before { transform: translateX(0); }
+    .btn-submit:hover { color: var(--ink); }
+    .btn-submit span { position: relative; z-index: 1; }
+    .btn-submit svg { position: relative; z-index: 1; transition: transform 0.2s; }
+    .btn-submit:hover svg { transform: translateX(4px); }
+
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-submit:disabled::before { display: none; }
+
+    /* Loading state */
+    .btn-submit.loading .btn-text { display: none; }
+    .btn-submit.loading .btn-loading { display: flex; align-items: center; gap: 8px; }
+    .btn-submit .btn-loading { display: none; }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid currentColor;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    .submit-note {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ─── Alerts ─────────────────────────────────────────── */
+    .alert {
+      padding: 16px 20px;
+      border-radius: var(--radius);
+      font-size: 13.5px;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .alert-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+    .alert-error {
+      background: #fff2f0;
+      border: 1px solid #ffccc7;
+      color: #a8071a;
+    }
+
+    .alert-success {
+      background: #f6ffed;
+      border: 1px solid #b7eb8f;
+      color: #237804;
+    }
+
+    .alert-warn {
+      background: #fffbe6;
+      border: 1px solid #ffe58f;
+      color: #ad6800;
+    }
+
+    .alert ul {
+      margin: 6px 0 0 18px;
+    }
+
+    .alert ul li {
+      margin-bottom: 2px;
+    }
+
+    /* ─── Results Table ─────────────────────────────────── */
+    #result-section {
+      display: none;
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .result-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 24px;
+      color: var(--ink);
+    }
+
+    .btn-download {
+      background: var(--sage);
+      color: var(--white);
+      border: none;
+      padding: 10px 22px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: var(--radius);
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .btn-download:hover { background: #3d6b4a; }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+
+    thead {
+      background: var(--ink);
+      color: var(--paper);
+    }
+
+    thead th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-family: 'DM Mono', monospace;
+      white-space: nowrap;
+    }
+
+    thead th.highlight { background: var(--gold); color: var(--ink); }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--cream); }
+
+    tbody td {
+      padding: 11px 16px;
+      color: var(--ink);
+    }
+
+    tbody td.score-col {
+      font-family: 'DM Mono', monospace;
+      font-weight: 500;
+      color: var(--sage);
+    }
+
+    tbody td.rank-col {
+      font-family: 'DM Serif Display', serif;
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--ink);
+    }
+
+    .rank-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: inline-grid;
+      place-items: center;
+      font-size: 13px;
+    }
+
+    .rank-1 { background: var(--gold); color: var(--ink); }
+    .rank-2 { background: var(--border); color: var(--ink); }
+    .rank-3 { background: #c07a48; color: var(--white); }
+
+    /* ─── Algorithm Info ────────────────────────────────── */
+    .algo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .algo-step {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      padding: 16px;
+      border-radius: var(--radius);
+    }
+
+    .algo-step .num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .algo-step .title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .algo-step .desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ─── Divider ────────────────────────────────────────── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2rem 0;
+    }
+
+    /* ─── Footer ─────────────────────────────────────────── */
+    footer {
+      position: relative;
+      z-index: 5;
+      background: var(--ink);
+      color: var(--muted);
+      text-align: center;
+      padding: 24px;
+      font-size: 12px;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.05em;
+    }
+
+    footer span { color: var(--gold); }
+
+    /* ─── Responsive ─────────────────────────────────────── */
+    @media (max-width: 700px) {
+      header { padding: 0 1.5rem; }
+      .hero  { padding: 2.5rem 1.5rem 2rem; }
+      main   { padding: 0 1rem 3rem; }
+      .card  { padding: 1.5rem; }
+      .form-grid { grid-template-columns: 1fr; }
+      .field.span-2 { grid-column: span 1; }
+      .smtp-fields.open { grid-template-columns: 1fr; }
+      .smtp-note { grid-column: span 1; }
+      .algo-grid { grid-template-columns: 1fr; }
+      .result-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🎯 TOPSIS Analyzer</h1>
-        <p class="tagline">Technique for Order Preference by Similarity to Ideal Solution</p>
 
-        <div id="alertBox" class="alert"></div>
-        <div id="loading" class="loading">
-            <div class="spinner"></div>
-            <p>Processing your analysis...</p>
-        </div>
+<!-- ─── Header ─────────────────────────────────────────── -->
+<header>
+  <div class="logo">
+    <div class="logo-mark">T</div>
+    <div class="logo-text">TOPSIS <span>Analyzer</span></div>
+  </div>
+  <div class="header-tag">MCDM · Decision Science</div>
+</header>
 
-        <form id="analysisForm">
-            <div class="section-title first">Input Data</div>
+<!-- ─── Hero ───────────────────────────────────────────── -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Multi-Criteria Decision Analysis</div>
+    <h1>Rank alternatives with<br><em>mathematical precision</em></h1>
+    <p>Upload your decision matrix as a CSV, define weights and criteria impacts, and receive a complete TOPSIS ranking delivered straight to your inbox.</p>
+  </div>
+</div>
 
-            <div class="form-group">
-                <label for="csvFile">📊 CSV File</label>
-                <input type="file" id="csvFile" name="file" accept=".csv" required>
-                <div class="help-text">First column: alternatives, rest: numeric criteria</div>
-            </div>
+<!-- ─── Steps Bar ───────────────────────────────────────── -->
+<div class="steps-bar">
+  <div class="step"><div class="step-num">1</div> Upload CSV</div>
+  <div class="step"><div class="step-num">2</div> Set Weights & Impacts</div>
+  <div class="step"><div class="step-num">3</div> Enter Email</div>
+  <div class="step"><div class="step-num">4</div> Get Results</div>
+</div>
 
-            <div class="form-group">
-                <label for="weights">⚖️ Weights (comma-separated)</label>
-                <input type="text" id="weights" name="weights" placeholder="1, 2, 1, 3" required>
-                <div class="help-text">Positive numbers separated by commas (e.g., 1, 2, 1, 3)</div>
-            </div>
+<!-- ─── Main ────────────────────────────────────────────── -->
+<main>
+  <div id="alerts"></div>
 
-            <div class="form-group">
-                <label for="impacts">↗️ Impacts (comma-separated)</label>
-                <input type="text" id="impacts" name="impacts" placeholder="+ , + , - , +" required>
-                <div class="help-text">Use '+' for benefit (higher is better) or '-' for cost (lower is better)</div>
-            </div>
-
-            <div class="section-title">Email Settings</div>
-
-            <div class="form-group">
-                <label for="email">📧 Recipient Email</label>
-                <input type="email" id="email" name="email" placeholder="your@email.com" required>
-                <div class="help-text">Results will be sent to this email</div>
-            </div>
-
-            <div class="form-group">
-                <label for="senderEmail">📤 Sender Email (Gmail)</label>
-                <input type="email" id="senderEmail" name="sender_email" placeholder="your.gmail@gmail.com" required>
-                <div class="help-text">Gmail account to send results from</div>
-            </div>
-
-            <div class="form-group">
-                <label for="senderPassword">🔐 Gmail App Password</label>
-                <input type="password" id="senderPassword" name="sender_password" placeholder="Enter app password">
-                <div class="help-text">Generate at: <a href="https://myaccount.google.com/apppasswords" target="_blank">Google App Passwords</a></div>
-            </div>
-
-            <div class="button-group">
-                <button type="submit" class="btn-submit">Analyze</button>
-                <button type="reset" class="btn-reset">Clear</button>
-            </div>
-        </form>
-
-        <div id="results" class="results">
-            <h2>📈 Analysis Results</h2>
-            <div class="alert alert-success" id="successMessage"></div>
-            <table class="results-table" id="resultsTable">
-                <thead>
-                    <tr id="tableHeader"></tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
-            <a href="#" id="downloadBtn" class="download-btn">📥 Download Results</a>
-        </div>
+  <!-- Form Card -->
+  <div class="card">
+    <div class="card-title">
+      <div class="icon">📊</div>
+      Analysis Configuration
     </div>
+    <div class="card-subtitle">Fill in all fields below. The first column of your CSV should contain alternative names; all remaining columns must be numeric criteria.</div>
 
-    <script>
-        const form = document.getElementById('analysisForm');
-        const alertBox = document.getElementById('alertBox');
-        const loading = document.getElementById('loading');
-        const resultsDiv = document.getElementById('results');
-        const resultsTable = document.getElementById('resultsTable');
-        const tableHeader = document.getElementById('tableHeader');
-        const tableBody = document.getElementById('tableBody');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const successMessage = document.getElementById('successMessage');
+    <form id="topsis-form" novalidate>
 
-        function showAlert(message, type = 'error') {
-            alertBox.className = `alert alert-${type}`;
-            if (Array.isArray(message)) {
-                alertBox.innerHTML = '<ul>' + message.map(m => `<li>${m}</li>`).join('') + '</ul>';
-            } else {
-                alertBox.innerHTML = message;
-            }
-            alertBox.style.display = 'block';
-            window.scrollTo(0, 0);
-        }
+      <!-- File Upload -->
+      <div class="field" style="margin-bottom: 1.5rem;">
+        <label>Decision Matrix CSV <span class="req">*</span></label>
+        <div class="file-drop" id="file-drop">
+          <input type="file" id="csv-file" name="file" accept=".csv" />
+          <span class="file-icon">📄</span>
+          <span class="file-label">Drop your CSV file here</span>
+          <span class="file-sub">or click to browse · .csv only · max 16MB</span>
+          <div id="file-name"></div>
+        </div>
+      </div>
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            alertBox.style.display = 'none';
-            resultsDiv.style.display = 'none';
-            loading.style.display = 'block';
+      <!-- Weights & Impacts -->
+      <div class="form-grid" style="margin-bottom: 1.5rem;">
+        <div class="field">
+          <label>Weights <span class="req">*</span></label>
+          <input type="text" id="weights" name="weights" placeholder="1,1,1,1" />
+          <div class="hint">comma-separated positive numbers</div>
+        </div>
+        <div class="field">
+          <label>Impacts <span class="req">*</span></label>
+          <input type="text" id="impacts" name="impacts" placeholder="+,+,-,+" />
+          <div class="hint">use + (benefit) or – (cost) per criterion</div>
+        </div>
+      </div>
 
-            const formData = new FormData(form);
+      <!-- Email -->
+      <div class="field" style="margin-bottom: 1.5rem;">
+        <label>Recipient Email <span class="req">*</span></label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" />
+        <div class="hint">results CSV will be sent here as attachment</div>
+      </div>
 
-            try {
-                const response = await fetch('/analyze', {
-                    method: 'POST',
-                    body: formData
-                });
+      <hr class="divider" />
 
-                const data = await response.json();
-                loading.style.display = 'none';
+      <!-- SMTP Section -->
+      <div class="smtp-toggle" id="smtp-toggle">
+        <div class="toggle-icon">✉️</div>
+        <div class="toggle-text">
+          <strong>Email (SMTP) Settings</strong>
+          <span>Required to send results · Gmail recommended</span>
+        </div>
+        <div class="toggle-arrow" id="toggle-arrow">›</div>
+      </div>
 
-                if (data.success) {
-                    displayResults(data);
-                    if (data.email_sent) {
-                        showAlert('✅ Analysis complete! Results sent to your email.', 'success');
-                    } else {
-                        showAlert(`⚠️ Analysis complete, but email failed: ${data.email_error}`, 'error');
-                    }
-                } else {
-                    showAlert(data.errors || ['An error occurred'], 'error');
-                }
-            } catch (error) {
-                loading.style.display = 'none';
-                showAlert('Network error: ' + error.message, 'error');
-            }
-        });
+      <div class="smtp-fields" id="smtp-fields">
+        <div class="smtp-note">
+          <strong>💡 Gmail tip:</strong> Use your Gmail address and a
+          <a href="https://support.google.com/accounts/answer/185833" target="_blank">16-character App Password</a>
+          (not your regular password). Enable 2-Step Verification first, then generate an App Password under
+          Security → 2-Step Verification → App passwords.
+        </div>
+        <div class="field">
+          <label>Sender Email <span class="req">*</span></label>
+          <input type="email" id="sender-email" name="sender_email" placeholder="your-gmail@gmail.com" />
+        </div>
+        <div class="field">
+          <label>App Password <span class="req">*</span></label>
+          <input type="text" id="sender-password" name="sender_password" placeholder="xxxx xxxx xxxx xxxx" />
+        </div>
+      </div>
 
-        function displayResults(data) {
-            // Populate table header
-            tableHeader.innerHTML = data.columns.map(col => `<th>${col}</th>`).join('');
+      <!-- Submit -->
+      <div class="submit-row">
+        <button type="submit" class="btn-submit" id="submit-btn">
+          <span class="btn-text">
+            <span>Run TOPSIS Analysis</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </span>
+          <span class="btn-loading">
+            <div class="spinner"></div>
+            <span>Processing…</span>
+          </span>
+        </button>
+        <div class="submit-note">
+          The algorithm normalizes your matrix, applies<br>weights, and computes ideal-solution distances.
+        </div>
+      </div>
 
-            // Populate table body
-            tableBody.innerHTML = data.preview.map(row => {
-                return '<tr>' + data.columns.map(col => {
-                    const value = row[col];
-                    return `<td>${typeof value === 'number' ? value.toFixed(4) : value}</td>`;
-                }).join('') + '</tr>';
-            }).join('');
+    </form>
+  </div>
 
-            // Update download button
-            downloadBtn.href = `/download/${data.result_file}`;
+  <!-- Results Section -->
+  <div id="result-section">
+    <div class="card">
+      <div class="result-header">
+        <div class="result-title">📈 TOPSIS Results</div>
+        <a id="download-btn" href="#" class="btn-download">
+          ⬇ Download CSV
+        </a>
+      </div>
+      <div id="result-alerts"></div>
+      <div class="table-wrap">
+        <table id="result-table">
+          <thead id="result-thead"></thead>
+          <tbody id="result-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-            resultsDiv.style.display = 'block';
-        }
-    </script>
+  <!-- Algorithm Info -->
+  <div class="card">
+    <div class="card-title">
+      <div class="icon">⚙</div>
+      How TOPSIS Works
+    </div>
+    <div class="card-subtitle">The algorithm follows six mathematical steps to produce a ranking.</div>
+    <div class="algo-grid">
+      <div class="algo-step">
+        <div class="num">01</div>
+        <div class="title">Normalize Matrix</div>
+        <div class="desc">Divide each value by the Euclidean norm of its column to create a dimensionless matrix.</div>
+      </div>
+      <div class="algo-step">
+        <div class="num">02</div>
+        <div class="title">Apply Weights</div>
+        <div class="desc">Multiply each normalized column by the corresponding criterion weight.</div>
+      </div>
+      <div class="algo-step">
+        <div class="num">03</div>
+        <div class="title">Ideal Solutions</div>
+        <div class="desc">Determine the ideal best (V⁺) and ideal worst (V⁻) values for each criterion.</div>
+      </div>
+      <div class="algo-step">
+        <div class="num">04</div>
+        <div class="title">Separation Measures</div>
+        <div class="desc">Compute Euclidean distances from each alternative to V⁺ and V⁻.</div>
+      </div>
+      <div class="algo-step">
+        <div class="num">05</div>
+        <div class="title">Performance Score</div>
+        <div class="desc">Score = d⁻ / (d⁺ + d⁻). Ranges from 0 to 1; higher is better.</div>
+      </div>
+      <div class="algo-step">
+        <div class="num">06</div>
+        <div class="title">Rank Alternatives</div>
+        <div class="desc">Sort by descending score. The alternative with score closest to 1 is best.</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ─── Footer ─────────────────────────────────────────── -->
+<footer>
+  TOPSIS Analyzer · <span>Multi-Criteria Decision Making</span> · Built with Python Flask & Pandas
+</footer>
+
+<!-- ─── JavaScript ─────────────────────────────────────── -->
+<script>
+  /* ── File Drop ───────────────────────────── */
+  const fileDrop = document.getElementById('file-drop');
+  const fileInput = document.getElementById('csv-file');
+  const fileNameEl = document.getElementById('file-name');
+
+  fileDrop.addEventListener('dragover', e => { e.preventDefault(); fileDrop.classList.add('dragover'); });
+  fileDrop.addEventListener('dragleave', () => fileDrop.classList.remove('dragover'));
+  fileDrop.addEventListener('drop', e => {
+    e.preventDefault();
+    fileDrop.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) {
+      fileInput.files = e.dataTransfer.files;
+      updateFileName(e.dataTransfer.files[0].name);
+    }
+  });
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) updateFileName(fileInput.files[0].name);
+  });
+
+  function updateFileName(name) {
+    fileNameEl.textContent = '✓ ' + name;
+    fileNameEl.style.display = 'block';
+    fileDrop.classList.add('has-file');
+  }
+
+  /* ── SMTP Toggle ─────────────────────────── */
+  const smtpToggle = document.getElementById('smtp-toggle');
+  const smtpFields = document.getElementById('smtp-fields');
+  const toggleArrow = document.getElementById('toggle-arrow');
+
+  smtpToggle.addEventListener('click', () => {
+    smtpFields.classList.toggle('open');
+    toggleArrow.classList.toggle('open');
+  });
+
+  // Open by default
+  smtpFields.classList.add('open');
+  toggleArrow.classList.add('open');
+
+  /* ── Alerts ──────────────────────────────── */
+  function showAlerts(messages, type = 'error', container = 'alerts') {
+    const el = document.getElementById(container);
+    const icon = type === 'error' ? '⚠' : type === 'success' ? '✓' : '⚡';
+    const cls = `alert alert-${type}`;
+    if (messages.length === 1) {
+      el.innerHTML = `<div class="${cls}"><span class="alert-icon">${icon}</span><div>${messages[0]}</div></div>`;
+    } else {
+      const items = messages.map(m => `<li>${m}</li>`).join('');
+      el.innerHTML = `<div class="${cls}"><span class="alert-icon">${icon}</span><div>Please fix the following issues:<ul>${items}</ul></div></div>`;
+    }
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function clearAlerts(container = 'alerts') {
+    document.getElementById(container).innerHTML = '';
+  }
+
+  /* ── Form Submit ─────────────────────────── */
+  const form = document.getElementById('topsis-form');
+  const submitBtn = document.getElementById('submit-btn');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearAlerts();
+    clearAlerts('result-alerts');
+
+    // Client-side validation
+    const errors = [];
+    if (!fileInput.files[0]) errors.push('Please upload a CSV file.');
+    if (!document.getElementById('weights').value.trim()) errors.push('Weights field is required.');
+    if (!document.getElementById('impacts').value.trim()) errors.push('Impacts field is required.');
+    if (!document.getElementById('email').value.trim()) errors.push('Recipient email is required.');
+    if (!document.getElementById('sender-email').value.trim()) errors.push('Sender email is required.');
+    if (!document.getElementById('sender-password').value.trim()) errors.push('App password is required.');
+
+    if (errors.length) { showAlerts(errors); return; }
+
+    // Build FormData
+    const fd = new FormData();
+    fd.append('file', fileInput.files[0]);
+    fd.append('weights', document.getElementById('weights').value.trim());
+    fd.append('impacts', document.getElementById('impacts').value.trim());
+    fd.append('email', document.getElementById('email').value.trim());
+    fd.append('sender_email', document.getElementById('sender-email').value.trim());
+    fd.append('sender_password', document.getElementById('sender-password').value.trim());
+
+    // Loading state
+    submitBtn.disabled = true;
+    submitBtn.classList.add('loading');
+
+    try {
+      const res = await fetch('/analyze', { method: 'POST', body: fd });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        showAlerts(data.errors || ['An unexpected error occurred.']);
+        return;
+      }
+
+      // Show success
+      if (data.email_sent) {
+        showAlerts([`✓ Analysis complete! Results sent to <strong>${document.getElementById('email').value}</strong>. Check your inbox.`], 'success');
+      } else {
+        showAlerts([`Analysis complete. <strong>Email delivery failed:</strong> ${data.email_error || 'Unknown error'} — Download your results below.`], 'warn');
+      }
+
+      // Render table
+      renderResults(data);
+
+    } catch (err) {
+      showAlerts(['Network error. Is the server running? ' + err.message]);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('loading');
+    }
+  });
+
+  /* ── Render Results ──────────────────────── */
+  function renderResults(data) {
+    const section = document.getElementById('result-section');
+    const thead   = document.getElementById('result-thead');
+    const tbody   = document.getElementById('result-tbody');
+    const dlBtn   = document.getElementById('download-btn');
+
+    // Headers
+    const highlightCols = new Set(['Topsis Score', 'Rank']);
+    thead.innerHTML = '<tr>' + data.columns.map(c =>
+      `<th class="${highlightCols.has(c) ? 'highlight' : ''}">${c}</th>`
+    ).join('') + '</tr>';
+
+    // Rows (sorted by rank)
+    const sorted = [...data.preview].sort((a, b) => a['Rank'] - b['Rank']);
+    tbody.innerHTML = sorted.map(row => {
+      const rank = row['Rank'];
+      const rankLabel = rank <= 3
+        ? `<span class="rank-badge rank-${rank}">${rank}</span>`
+        : rank;
+      return '<tr>' + data.columns.map(c => {
+        if (c === 'Rank') return `<td class="rank-col">${rankLabel}</td>`;
+        if (c === 'Topsis Score') return `<td class="score-col">${row[c]}</td>`;
+        return `<td>${row[c]}</td>`;
+      }).join('') + '</tr>';
+    }).join('');
+
+    // Download link
+    dlBtn.href = `/download/${data.result_file}`;
+
+    section.style.display = 'block';
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+</script>
 </body>
 </html>
