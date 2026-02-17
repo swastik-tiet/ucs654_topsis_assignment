@@ -20,6 +20,8 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['RESULTS_FOLDER'], exist_ok=True)
 
 
+# ─── TOPSIS Core Algorithm ────────────────────────────────────────────────────
+
 def topsis(df, weights, impacts):
     """
     Implements the complete TOPSIS algorithm.
@@ -52,6 +54,7 @@ def topsis(df, weights, impacts):
             ideal_best[j] = weighted[:, j].min()
             ideal_worst[j] = weighted[:, j].max()
 
+    # Step 4: Calculate separation measures (Euclidean distance)
     d_best = np.sqrt(((weighted - ideal_best) ** 2).sum(axis=1))
     d_worst = np.sqrt(((weighted - ideal_worst) ** 2).sum(axis=1))
 
@@ -68,6 +71,7 @@ def topsis(df, weights, impacts):
     return result_df
 
 
+# ─── Validation Helpers ───────────────────────────────────────────────────────
 
 def validate_email(email):
     pattern = r'^[\w\.-]+@[\w\.-]+\.\w{2,}$'
@@ -90,6 +94,7 @@ def validate_csv(filepath):
         return None, f"Failed to parse CSV: {str(e)}"
 
 
+# ─── Email Sending ────────────────────────────────────────────────────────────
 
 def send_email(to_email, result_path, sender_email, sender_password):
     """Send result CSV as email attachment."""
