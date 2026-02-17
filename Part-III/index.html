@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOPSIS Analysis Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .tagline {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        input[type="password"],
+        input[type="file"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 6px;
+            font-size: 0.95em;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="number"]:focus,
+        input[type="password"]:focus,
+        input[type="file"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .help-text {
+            font-size: 0.85em;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            font-size: 1em;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-reset {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-reset:hover {
+            background: #e0e0e0;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-error {
+            background: #fee;
+            color: #c33;
+            border-left: 4px solid #c33;
+        }
+
+        .alert-success {
+            background: #efe;
+            color: #3c3;
+            border-left: 4px solid #3c3;
+        }
+
+        .alert ul {
+            margin-left: 20px;
+            margin-top: 5px;
+        }
+
+        .alert li {
+            margin-bottom: 3px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            display: none;
+            margin-top: 30px;
+            border-top: 2px solid #f0f0f0;
+            padding-top: 20px;
+        }
+
+        .results h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            max-height: 400px;
+            overflow-y: auto;
+            display: block;
+            font-size: 0.9em;
+        }
+
+        .results-table thead {
+            display: block;
+            background: #f8f8f8;
+        }
+
+        .results-table tbody {
+            display: block;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e1e8ed;
+        }
+
+        .results-table td {
+            color: #666;
+        }
+
+        .results-table th {
+            background: #f8f8f8;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .download-btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .download-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .first {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 TOPSIS Analyzer</h1>
+        <p class="tagline">Technique for Order Preference by Similarity to Ideal Solution</p>
+
+        <div id="alertBox" class="alert"></div>
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Processing your analysis...</p>
+        </div>
+
+        <form id="analysisForm">
+            <div class="section-title first">Input Data</div>
+
+            <div class="form-group">
+                <label for="csvFile">📊 CSV File</label>
+                <input type="file" id="csvFile" name="file" accept=".csv" required>
+                <div class="help-text">First column: alternatives, rest: numeric criteria</div>
+            </div>
+
+            <div class="form-group">
+                <label for="weights">⚖️ Weights (comma-separated)</label>
+                <input type="text" id="weights" name="weights" placeholder="1, 2, 1, 3" required>
+                <div class="help-text">Positive numbers separated by commas (e.g., 1, 2, 1, 3)</div>
+            </div>
+
+            <div class="form-group">
+                <label for="impacts">↗️ Impacts (comma-separated)</label>
+                <input type="text" id="impacts" name="impacts" placeholder="+ , + , - , +" required>
+                <div class="help-text">Use '+' for benefit (higher is better) or '-' for cost (lower is better)</div>
+            </div>
+
+            <div class="section-title">Email Settings</div>
+
+            <div class="form-group">
+                <label for="email">📧 Recipient Email</label>
+                <input type="email" id="email" name="email" placeholder="your@email.com" required>
+                <div class="help-text">Results will be sent to this email</div>
+            </div>
+
+            <div class="form-group">
+                <label for="senderEmail">📤 Sender Email (Gmail)</label>
+                <input type="email" id="senderEmail" name="sender_email" placeholder="your.gmail@gmail.com" required>
+                <div class="help-text">Gmail account to send results from</div>
+            </div>
+
+            <div class="form-group">
+                <label for="senderPassword">🔐 Gmail App Password</label>
+                <input type="password" id="senderPassword" name="sender_password" placeholder="Enter app password">
+                <div class="help-text">Generate at: <a href="https://myaccount.google.com/apppasswords" target="_blank">Google App Passwords</a></div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn-submit">Analyze</button>
+                <button type="reset" class="btn-reset">Clear</button>
+            </div>
+        </form>
+
+        <div id="results" class="results">
+            <h2>📈 Analysis Results</h2>
+            <div class="alert alert-success" id="successMessage"></div>
+            <table class="results-table" id="resultsTable">
+                <thead>
+                    <tr id="tableHeader"></tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+            <a href="#" id="downloadBtn" class="download-btn">📥 Download Results</a>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('analysisForm');
+        const alertBox = document.getElementById('alertBox');
+        const loading = document.getElementById('loading');
+        const resultsDiv = document.getElementById('results');
+        const resultsTable = document.getElementById('resultsTable');
+        const tableHeader = document.getElementById('tableHeader');
+        const tableBody = document.getElementById('tableBody');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const successMessage = document.getElementById('successMessage');
+
+        function showAlert(message, type = 'error') {
+            alertBox.className = `alert alert-${type}`;
+            if (Array.isArray(message)) {
+                alertBox.innerHTML = '<ul>' + message.map(m => `<li>${m}</li>`).join('') + '</ul>';
+            } else {
+                alertBox.innerHTML = message;
+            }
+            alertBox.style.display = 'block';
+            window.scrollTo(0, 0);
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            alertBox.style.display = 'none';
+            resultsDiv.style.display = 'none';
+            loading.style.display = 'block';
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                loading.style.display = 'none';
+
+                if (data.success) {
+                    displayResults(data);
+                    if (data.email_sent) {
+                        showAlert('✅ Analysis complete! Results sent to your email.', 'success');
+                    } else {
+                        showAlert(`⚠️ Analysis complete, but email failed: ${data.email_error}`, 'error');
+                    }
+                } else {
+                    showAlert(data.errors || ['An error occurred'], 'error');
+                }
+            } catch (error) {
+                loading.style.display = 'none';
+                showAlert('Network error: ' + error.message, 'error');
+            }
+        });
+
+        function displayResults(data) {
+            // Populate table header
+            tableHeader.innerHTML = data.columns.map(col => `<th>${col}</th>`).join('');
+
+            // Populate table body
+            tableBody.innerHTML = data.preview.map(row => {
+                return '<tr>' + data.columns.map(col => {
+                    const value = row[col];
+                    return `<td>${typeof value === 'number' ? value.toFixed(4) : value}</td>`;
+                }).join('') + '</tr>';
+            }).join('');
+
+            // Update download button
+            downloadBtn.href = `/download/${data.result_file}`;
+
+            resultsDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
