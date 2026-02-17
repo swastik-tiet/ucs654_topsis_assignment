@@ -178,7 +178,7 @@ cat result.csv
 ### 📥 Installation
 
 ```bash
-pip install Topsis-FirstName-RollNumber
+pip install Topsis-swastik-102316020
 ```
 
 ### 🖥️ Command Line Usage (after install)
