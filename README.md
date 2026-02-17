@@ -151,21 +151,6 @@ python topsis.py data.csv "1,1,1,2" "+,+,-,+" output-result.csv
 ❌ Error: Impacts must be '+' or '-' only.
 ```
 
-### Quick Start
-
-```bash
-# Clone the repo
-git clone https://github.com/YourUsername/Topsis-Assignment.git
-cd Topsis-Assignment/Part-I
-
-# Run with sample data
-python topsis.py data.csv "1,1,1,2" "+,+,-,+" result.csv
-
-# View output
-cat result.csv
-```
-
----
 
 ## 📦 Part II — PyPI Package
 
@@ -204,7 +189,7 @@ topsis(
 ### 📦 Package Structure
 
 ```
-Topsis-FirstName-RollNumber/
+Topsis-swastik-102316020/
 ├── topsis_pkg/
 │   ├── __init__.py        ← Package init + version
 │   ├── topsis.py          ← Core TOPSIS algorithm
@@ -224,7 +209,7 @@ Topsis-FirstName-RollNumber/
 pip install build twine
 
 # 2. Build the package
-cd Part-II/Topsis-FirstName-RollNumber
+cd Part-II/Topsis-swastik-102316020
 python -m build
 
 # 3. Upload to PyPI
